@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "463927330373",
+    "firebase_url": "https://residential-management-s-2217c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "residential-management-s-2217c",
+    "storage_bucket": "residential-management-s-2217c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463927330373:android:c018e74887b1ef4c50c52c",
+        "android_client_info": {
+          "package_name": "com.example.residential_management_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfUpH_HUxrCL3HyfjvzE0ToQFqM1Sgh4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
