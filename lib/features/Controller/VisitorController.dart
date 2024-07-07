@@ -5,11 +5,13 @@ class VisitorController {
   static final CollectionReference visitorCollection =
       FirebaseFirestore.instance.collection('Visitors');
 
-  static Future<void> saveVisitor(Visitor visitor) async {
+  static Future<String> saveVisitor(Visitor visitor) async {
     try {
-      await visitorCollection.add(visitor.toMap());
+      DocumentReference docRef = await visitorCollection.add(visitor.toMap());
+      return docRef.id;
     } catch (e) {
       print('Error saving visitor: $e');
+      return '';
     }
   }
 }

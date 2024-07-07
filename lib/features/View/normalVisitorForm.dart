@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:residential_management_system/features/Controller/VisitorController.dart';
 import 'package:residential_management_system/features/View/qrImage.dart';
@@ -12,25 +15,46 @@ class NormalVisitorForm extends StatefulWidget {
 }
 
 class _NormalVisitorFormState extends State<NormalVisitorForm> {
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _plateController = TextEditingController();
   final TextEditingController _checkInDateController = TextEditingController();
   final TextEditingController _checkOutDateController = TextEditingController();
   DateTime todayDate = DateTime.now();
-  //DateTime _checkInDate = DateTime.now();
-  //DateTime _checkOutDate = DateTime.now();
-
+  String residentName = '';
   String qrCodeData = '';
 
-  void _submitForm() {
+  @override
+  void initState() {
+    super.initState();
+    _getResidentName();
+  }
+
+  Future<void> _getResidentName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Fetch the resident document based on the user's email
+      var residentDoc = await FirebaseFirestore.instance
+          .collection('Resident')
+          .where('email', isEqualTo: user.email)
+          .get();
+
+      if (residentDoc.docs.isNotEmpty) {
+        setState(() {
+          residentName = residentDoc.docs.first['residentname'];
+        });
+      }
+    }
+  }
+
+  void _submitForm() async {
     //get form data
     String name = _nameController.text;
     String phoneNumber = _phoneNumberController.text;
     String plate = _plateController.text;
     String checkInDate = _checkInDateController.text;
     String checkOutDate = _checkOutDateController.text;
+    String applicantName = residentName;
 
     //create visitor object
     Visitor visitor = Visitor(
@@ -38,24 +62,32 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
       phoneNumber: phoneNumber,
       plate: plate,
       checkInDate: todayDate.toString().split(" ")[0],
-      checkOutDate:todayDate.toString().split(" ")[0],
+      checkOutDate: todayDate.toString().split(" ")[0],
       Status: 'Approved',
+      applicantName: applicantName,
     );
 
-    //save visitor data
-    VisitorController.saveVisitor(visitor);
+    //save visitor data and get the visitore ID
+    String visitorId = await VisitorController.saveVisitor(visitor);
 
-    //clear form
-    _nameController.clear();
-    _phoneNumberController.clear();
-    _plateController.clear();
+    if (visitorId.isNotEmpty) {
+      //clear form
+      _nameController.clear();
+      _phoneNumberController.clear();
+      _plateController.clear();
 
-    //show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Visitor has successfully registered')),
-    );
+      //show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Visitor has successfully registered')),
+      );
 
-    generateQrCode();
+      generateQrCode(visitorId);
+    } else {
+      // Handle the error appropriately
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to register visitor')),
+      );
+    }
   }
 
   void _cancelForm() {
@@ -70,25 +102,27 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
     );
   }
 
-  void generateQrCode() {
+  void generateQrCode(String visitorId) {
     // Construct the QR code data
     String qrCodeData = _nameController.text +
-      ',' +
-      _phoneNumberController.text +
-      ',' +
-      _plateController.text +
-      ',' +
-      _checkInDateController.text +
-      ',' +
-      _checkOutDateController.text;
+        ',' +
+        _phoneNumberController.text +
+        ',' +
+        _plateController.text +
+        ',' +
+        _checkInDateController.text +
+        ',' +
+        _checkOutDateController.text;
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => QrImagePage(qrCodeData,200),),
-      );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QrImagePage(qrCodeData, visitorId, 200),
+      ),
+    );
 
-      //show a dialog with the QR Code
-      /*showDialog(
+    //show a dialog with the QR Code
+    /*showDialog(
         context: context, 
         builder: (BuildContext context) {
           return AlertDialog(
@@ -111,7 +145,6 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
           );
         },
       );*/
-
   }
 
   @override
@@ -159,8 +192,9 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                SizedBox(height: 20.0,),
+                SizedBox(
+                  height: 20.0,
+                ),
                 TextFormField(
                   decoration: InputDecoration(
                     icon: Icon(
@@ -170,8 +204,7 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                     ),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 2.0)
-                    ),
+                        borderSide: BorderSide(color: Colors.grey, width: 2.0)),
                     labelText: 'Visitor Name',
                     labelStyle: TextStyle(
                       color: Colors.grey[800],
@@ -179,8 +212,9 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                   ),
                   controller: _nameController,
                 ),
-
-                SizedBox(height: 30.0,),
+                SizedBox(
+                  height: 30.0,
+                ),
                 TextFormField(
                   decoration: InputDecoration(
                     icon: Icon(
@@ -190,8 +224,7 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                     ),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 2.0)
-                    ),
+                        borderSide: BorderSide(color: Colors.grey, width: 2.0)),
                     labelText: 'Visitor Phone Number',
                     labelStyle: TextStyle(
                       color: Colors.grey[800],
@@ -199,8 +232,9 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                   ),
                   controller: _phoneNumberController,
                 ),
-
-                SizedBox(height: 30.0,),
+                SizedBox(
+                  height: 30.0,
+                ),
                 TextFormField(
                   decoration: InputDecoration(
                     icon: Icon(
@@ -210,8 +244,7 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                     ),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 2.0)
-                    ),
+                        borderSide: BorderSide(color: Colors.grey, width: 2.0)),
                     labelText: 'Visitor Plate Number',
                     labelStyle: TextStyle(
                       color: Colors.grey[800],
@@ -219,7 +252,6 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
                   ),
                   controller: _plateController,
                 ),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -241,12 +273,14 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
       child: ElevatedButton(
         onPressed: () {
           _submitForm();
-        }, 
+        },
         child: Text(
           'Submit',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.lightGreenAccent[700])),
+        style: ButtonStyle(
+            backgroundColor:
+                MaterialStateProperty.all(Colors.lightGreenAccent[700])),
       ),
     );
   }
@@ -255,13 +289,13 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
     return Padding(
       padding: const EdgeInsets.only(top: 30.0),
       child: FloatingActionButton.extended(
-        onPressed: _cancelForm, 
+        onPressed: _cancelForm,
         label: Text(
           'Cancel',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.red[800],
-        ),
+      ),
     );
   }
 }

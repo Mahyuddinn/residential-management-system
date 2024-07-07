@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:residential_management_system/features/View/adminCheckVisitor.dart';
+import 'package:residential_management_system/features/View/login_page.dart';
 import 'package:residential_management_system/features/View/profile_page.dart';
 import 'package:residential_management_system/features/View/securityScanQrCode.dart';
+import 'package:residential_management_system/global/common/toast.dart';
 
 class SecurityHomePage extends StatefulWidget {
   const SecurityHomePage({super.key});
@@ -95,20 +97,22 @@ class _SecurityHomePageState extends State<SecurityHomePage> {
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Column(
-        children: <Widget>[
-          Text(
-            'Residential Management System',
-            style: TextStyle(color: Colors.white),
-          ),
-          Text(
-            user.email!,
-            style: TextStyle(fontSize: 15, color: Colors.white),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-        ],
+      title: Center(
+        child: Column(
+          children: <Widget>[
+            Text(
+              'Residential Management System',
+              style: TextStyle(color: Colors.white),
+            ),
+            Text(
+              user.email!,
+              style: TextStyle(fontSize: 15, color: Colors.white),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+          ],
+        ),
       ),
       centerTitle: false,
       backgroundColor: Colors.redAccent[700],
@@ -184,10 +188,10 @@ class _SecurityHomePageState extends State<SecurityHomePage> {
         ),
         BottomNavigationBarItem(
           icon: Icon(
-            Icons.account_circle,
+            Icons.logout,
             color: Colors.white,
           ),
-          label: 'Profile',
+          label: 'Logout',
         ),
       ],
       onTap: (int index) {
@@ -199,10 +203,12 @@ class _SecurityHomePageState extends State<SecurityHomePage> {
             );
             break;
           case 1:
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfilePage()),
-            );
+            FirebaseAuth.instance.signOut();
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false);
+            showToast(message: "Successfully signed out");
             break;
         }
       },

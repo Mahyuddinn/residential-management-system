@@ -5,6 +5,7 @@ class Visitor {
   final String checkInDate;
   final String checkOutDate;
   final String Status;
+  final String applicantName;
 
   Visitor({
     required this.name,
@@ -13,6 +14,7 @@ class Visitor {
     required this.checkInDate,
     required this.checkOutDate,
     required this.Status,
+    required this.applicantName,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class Visitor {
       'checkInDate': checkInDate,
       'checkOutDate': checkOutDate,
       'Status': Status,
+      'applicantName': applicantName,
     };
   }
 }

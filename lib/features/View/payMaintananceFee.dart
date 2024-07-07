@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:residential_management_system/features/View/home_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:residential_management_system/features/View/paymentHistory.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BillingPage extends StatefulWidget {
@@ -59,9 +60,11 @@ class _BillingPageState extends State<BillingPage> {
         .listen((docSnapshot) {
       if (docSnapshot.exists) {
         var data = docSnapshot.data() as Map<String, dynamic>;
+        print('Fetched data: $data');
         if (data.containsKey('totalMaintenanceFees')) {
           setState(() {
-            _totalMaintenanceFees = data['totalMaintenanceFees'] ?? 0.0;
+            _totalMaintenanceFees =
+                (data['totalMaintenanceFees'] ?? 0).toDouble();
           });
           print('Fetched total maintenance fees: $_totalMaintenanceFees');
         } else {
@@ -233,7 +236,7 @@ class _BillingPageState extends State<BillingPage> {
         if (docSnapshot.exists) {
           var data = docSnapshot.data() as Map<String, dynamic>;
           List<dynamic> feesList = data['maintenanceFees'] ?? [];
-          double currentTotal = data['totalMaintenanceFees'] ?? 0.0;
+          double currentTotal = data['totalMaintenanceFees']?.toDouble() ?? 0.0;
           double newTotal = currentTotal - paidAmount;
 
           // Update payment status in feesList
@@ -342,6 +345,17 @@ class _BillingPageState extends State<BillingPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
+                    ),
+                    SizedBox(height: 20.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PaymentHistoryPage()),
+                        );
+                      },
+                      child: Text('View Payment History'),
                     ),
                   ],
                 ),

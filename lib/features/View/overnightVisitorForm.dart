@@ -1,4 +1,6 @@
 import 'dart:ffi';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:residential_management_system/features/Controller/VisitorController.dart';
 import 'package:residential_management_system/features/View/home_page.dart';
@@ -19,8 +21,30 @@ class _OvernightVisitorFormState extends State<OvernightVisitorForm> {
   final TextEditingController _checkInDateController = TextEditingController();
   final TextEditingController _checkOutDateController = TextEditingController();
   String? choosenDate;
-  //DateTime _checkInDate = DateTime.now();
-  //DateTime _checkOutDate = DateTime.now();
+  String residentName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getResidentName();
+  }
+
+  Future<void> _getResidentName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Fetch the resident document based on the user's email
+      var residentDoc = await FirebaseFirestore.instance
+          .collection('Resident')
+          .where('email', isEqualTo: user.email)
+          .get();
+
+      if (residentDoc.docs.isNotEmpty) {
+        setState(() {
+          residentName = residentDoc.docs.first['residentname'];
+        });
+      }
+    }
+  }
 
   Future<void> _showDatePicker(bool isCheckInDate) async{
     DateTime? pickedDate = await showDatePicker(
@@ -49,6 +73,7 @@ class _OvernightVisitorFormState extends State<OvernightVisitorForm> {
     String plate = _plateController.text;
     String _checkInDate = _checkInDateController.text;
     String _checkOutDate = _checkOutDateController.text;
+    String applicantName = residentName;
 
     //Create the visitor object
     Visitor visitor = Visitor(
@@ -58,6 +83,7 @@ class _OvernightVisitorFormState extends State<OvernightVisitorForm> {
       checkInDate: _checkInDate,
       checkOutDate: _checkOutDate,
       Status: 'pending',
+      applicantName: applicantName,
     );
 
     //save the visitor data

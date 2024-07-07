@@ -18,12 +18,14 @@ class ViewFacilityPage extends StatefulWidget {
 class _ViewFacilityPageState extends State<ViewFacilityPage> {
   Facility? facilityData;
   String? selectedTimeSlot;
+  String? selectedDate;
   String? residentName;
   String? residentPhoneNumber;
 
   // Define controller for the form fields
   final _nameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
+  final _dateController = TextEditingController();
 
   // Define list of time slots
   List<String> timeSlots = [
@@ -54,6 +56,7 @@ class _ViewFacilityPageState extends State<ViewFacilityPage> {
     // Clean up the controllers when the widget is disposed
     _nameController.dispose();
     _phoneNumberController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
@@ -70,6 +73,7 @@ class _ViewFacilityPageState extends State<ViewFacilityPage> {
       'residentName': residentName,
       'residentPhoneNumber': residentPhoneNumber,
       'timeSlot': selectedTimeSlot,
+      'date': selectedDate,
       'timestamp': FieldValue.serverTimestamp(),
       'status': 'pending',
     }).then((value) {
@@ -83,6 +87,7 @@ class _ViewFacilityPageState extends State<ViewFacilityPage> {
     //_phoneNumberController.clear();
     setState(() {
       selectedTimeSlot = null;
+      selectedDate = null;
     });
 
     Navigator.push(
@@ -167,6 +172,22 @@ class _ViewFacilityPageState extends State<ViewFacilityPage> {
       setState(() {
         facilityData = null;
         print('Error fetching facility data: $e'); // Add this line
+      });
+    }
+  }
+
+  Future<void> _showDatePicker() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedDate = pickedDate.toString().split(" ")[0];
+        _dateController.text = selectedDate!;
       });
     }
   }
@@ -275,6 +296,17 @@ class _ViewFacilityPageState extends State<ViewFacilityPage> {
                                   border: OutlineInputBorder(),
                                   enabled: false,
                                 ),
+                              ),
+                              SizedBox(height: 16),
+                              TextField(
+                                controller: _dateController,
+                                decoration: InputDecoration(
+                                  labelText: 'Select Date',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.calendar_today),
+                                ),
+                                readOnly: true,
+                                onTap: _showDatePicker,
                               ),
                               SizedBox(height: 16),
                               DropdownButtonFormField<String>(

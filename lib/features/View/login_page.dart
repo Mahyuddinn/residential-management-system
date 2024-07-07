@@ -139,8 +139,10 @@ class _LoginPageState extends State<LoginPage> {
       });
       if (user != null) {
         showToast(message: 'Admin is successfully signed in');
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => AdminHomePage()));
+        Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => AdminHomePage()),
+                (route) => false);
       } else {
         showToast(message: 'admin is not signed in');
       }
@@ -152,8 +154,10 @@ class _LoginPageState extends State<LoginPage> {
       });
       if (user != null) {
         showToast(message: 'Security is successfully signed in');
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SecurityHomePage()));
+        Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => SecurityHomePage()),
+                (route) => false);
       } else {
         showToast(message: 'Security is not signed in');
       }
@@ -166,8 +170,10 @@ class _LoginPageState extends State<LoginPage> {
 
       if (user != null) {
         showToast(message: 'User is successfully signed in');
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+        Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+                (route) => false);
       } else {
         showToast(message: "User is not successfully signed in");
       }

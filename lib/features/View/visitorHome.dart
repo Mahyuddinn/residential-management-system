@@ -3,6 +3,7 @@ import 'package:residential_management_system/features/View/home_page.dart';
 import 'package:residential_management_system/features/View/normalVisitorForm.dart';
 import 'package:residential_management_system/features/View/overnightVisitorForm.dart';
 import 'package:residential_management_system/features/View/profile_page.dart';
+import 'package:residential_management_system/features/View/visitorStatus.dart';
 
 class VisitorHome extends StatelessWidget {
   @override
@@ -21,7 +22,6 @@ class VisitorHomePage extends StatefulWidget {
 }
 
 class _VisitorHomePageState extends State<VisitorHomePage> {
-
   void _doNothing() {}
 
   @override
@@ -31,7 +31,7 @@ class _VisitorHomePageState extends State<VisitorHomePage> {
       initialIndex: 1,
       child: Scaffold(
         appBar: _buildAppBar(context),
-        body: _buildBody(),
+        body: SingleChildScrollView(child: _buildBody()),
         bottomNavigationBar: _buildBottomNavigationBar(context),
       ),
     );
@@ -61,18 +61,18 @@ class _VisitorHomePageState extends State<VisitorHomePage> {
     );
   }
 
-  Center _buildBody(){
+  Center _buildBody() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 50,),
+          SizedBox(
+            height: 50,
+          ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (context) => NormalVisitorForm())
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => NormalVisitorForm()));
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -82,7 +82,9 @@ class _VisitorHomePageState extends State<VisitorHomePage> {
                   height: 100,
                   width: 100,
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Text(
                   'Visitor',
                   style: TextStyle(color: Colors.white, fontSize: 38),
@@ -121,6 +123,34 @@ class _VisitorHomePageState extends State<VisitorHomePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent[700],
               padding: EdgeInsets.symmetric(vertical: 15, horizontal: 100),
+            ),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VisitorStatusPage()),
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  size: 100,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Check Visitor Status',
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ],
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 85),
             ),
           ),
         ],
@@ -166,5 +196,4 @@ class _VisitorHomePageState extends State<VisitorHomePage> {
       },
     );
   }
-
 }

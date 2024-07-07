@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewNotices extends StatefulWidget {
   const ViewNotices({super.key});
@@ -45,7 +46,7 @@ class _ViewNoticesState extends State<ViewNotices> {
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios),
                     onTap: () {
-                      _showNoticeDialog(context, notice['title'], notice['content']);
+                      _showNoticeDialog(context, notice['title'], notice['content'], notice['pdfUrl']);
                     },
                   ),
                 ),
@@ -57,7 +58,7 @@ class _ViewNoticesState extends State<ViewNotices> {
     );
   }
 
-  _showNoticeDialog(BuildContext context, String title, String content) {
+  _showNoticeDialog(BuildContext context, String title, String content, String? pdfUrl) {
     showDialog(
       context: context, 
       builder: (BuildContext context) {
@@ -67,7 +68,20 @@ class _ViewNoticesState extends State<ViewNotices> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           content: SingleChildScrollView(
-            child: Text(content),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(content),
+                if (pdfUrl != null) ...[
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => _downloadPdf(pdfUrl),
+                    child: const Text('Download PDF'),
+                  ),
+                ],
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -80,6 +94,17 @@ class _ViewNoticesState extends State<ViewNotices> {
         );
       },
     );
+  }
+
+  void _downloadPdf(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      // Show an error message if unable to launch URL
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not open PDF')),
+      );
+    }
   }
 
   AppBar _buildAppBar(BuildContext context) {

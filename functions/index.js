@@ -35,11 +35,14 @@ exports.addMonthlyMiantenanceFee = onSchedule("0 0 * * *", async (context) => {
     const snapshot = await residentRef.get();
     snapshot.forEach((doc) => {
       const docRef = residentRef.doc(doc.id);
+      const currentTotalFees = doc.data().totalMaintenanceFees || 0;
+      const newMaintenanceFees = 10;
       batch.update(docRef, {
         maintenanceFees: admin.firestore.FieldValue.arrayUnion({
-          amount: 1,
+          amount: newMaintenanceFees,
           date: now,
         }),
+        totalMaintenanceFees: currentTotalFees + newMaintenanceFees,
       });
     });
 

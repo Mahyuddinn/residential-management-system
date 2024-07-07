@@ -126,6 +126,17 @@ class VisitorDetailDialog extends StatelessWidget {
             },
             child: Text('Approve'),
           ),
+        if (document['Status'] == 'pending') 
+          TextButton(
+            onPressed: () async {
+              await FirebaseFirestore.instance
+                  .collection('Visitors')
+                  .doc(document.id)
+                  .update({'Status': 'Rejected'});
+              Navigator.of(context).pop();
+            },
+            child: Text('Rejected'),
+          ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();

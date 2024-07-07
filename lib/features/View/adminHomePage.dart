@@ -18,7 +18,7 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
-    final user = FirebaseAuth.instance.currentUser!;
+  final user = FirebaseAuth.instance.currentUser!;
 
   void _doNothing() {}
   @override
@@ -30,14 +30,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
         appBar: _buildAppBar(context),
         body: _buildBodyView(context),
         bottomNavigationBar: _buildBottomNavigationBar(context),
-
       ),
     );
   }
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-        title: Column(
+      title: Center(
+        child: Column(
           children: <Widget>[
             Text(
               'Residential Management System',
@@ -47,41 +47,47 @@ class _AdminHomePageState extends State<AdminHomePage> {
               user.email!,
               style: TextStyle(fontSize: 15, color: Colors.white),
             ),
-            SizedBox(height: 5,),
+            SizedBox(
+              height: 5,
+            ),
           ],
         ),
-        centerTitle: false,
-        backgroundColor: Colors.redAccent[700],
-        toolbarHeight: 100,
-        flexibleSpace: Container(),
-      );
+      ),
+      centerTitle: false,
+      backgroundColor: Colors.redAccent[700],
+      toolbarHeight: 100,
+      flexibleSpace: Container(),
+    );
   }
 
   Center _buildBodyView(BuildContext context) {
     return Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height: 1),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  _buildButton(context, 'assets/images/visitors.png', 'Visitor'),
-                  _buildButton(context, 'assets/images/facility.png', 'Facilities'),
-                ],
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  _buildButton(context, 'assets/images/notifications.png', 'Notices'),
-                  _buildButton(context, 'assets/images/documentation.png', 'Documents'),
-                ],
-              ),
-            ],
-          ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(height: 1),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                _buildButton(context, 'assets/images/visitors.png', 'Visitor'),
+                _buildButton(
+                    context, 'assets/images/facility.png', 'Facilities'),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                _buildButton(
+                    context, 'assets/images/notifications.png', 'Notices'),
+                _buildButton(
+                    context, 'assets/images/documentation.png', 'Documents'),
+              ],
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -184,10 +190,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
         ),
         BottomNavigationBarItem(
           icon: Icon(
-            Icons.account_circle,
+            Icons.logout,
             color: Colors.white,
           ),
-          label: 'Profile',
+          label: 'Logout',
         ),
       ],
       onTap: (int index) {
@@ -199,14 +205,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
             );
             break;
           case 1:
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfilePage()),
-            );
+            FirebaseAuth.instance.signOut();
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false);
+            showToast(message: "Successfully signed out");
             break;
         }
       },
     );
   }
-
 }

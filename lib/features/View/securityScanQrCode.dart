@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:residential_management_system/features/View/qrViewData.dart';
 import 'package:residential_management_system/features/View/securityHomepage.dart';
 
 class SecurityScanQr extends StatefulWidget {
@@ -71,11 +72,24 @@ class _SecurityScanQrState extends State<SecurityScanQr> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
+    setState(() {
+      this.controller = controller;
+    });
+
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         qrCodeResult = scanData.code;
       });
+
+      if (qrCodeResult != null) {
+        controller.pauseCamera();
+        Navigator.push(
+          context, 
+          MaterialPageRoute(
+            builder: (context) => QRResultPage(data: qrCodeResult!),
+          ),
+        );
+      }
     });
   }
 
@@ -85,4 +99,3 @@ class _SecurityScanQrState extends State<SecurityScanQr> {
     super.dispose();
   }
 }
-

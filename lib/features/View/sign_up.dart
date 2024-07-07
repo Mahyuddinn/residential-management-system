@@ -6,7 +6,6 @@ import 'package:residential_management_system/features/View/login_page.dart';
 import 'package:residential_management_system/features/model/Resident.dart';
 import 'package:residential_management_system/global/common/toast.dart';
 
-
 class Register extends StatefulWidget {
   @override
   State<Register> createState() => _RegisterState();
@@ -38,13 +37,85 @@ class _RegisterState extends State<Register> {
     super.dispose();
   }
 
-  Future signUp() async {
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+  Future signUp(residentObj) async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginPage()), (route) => false);
+      // Save resident to Firestore
+      await ResidentController.saveResidentToFirestore(residentObj);
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Registration Successful'),
+            content: Text('Your account has been created successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (route) => false,
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'email-already-in-use') {
+        message = 'The email address is already in use by another account.';
+      } else if (e.code == 'weak-password') {
+        message = 'The password provided is too weak.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is not valid.';
+      } else {
+        message = 'An unknown error occurred.';
+      }
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Registration Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Registration Error'),
+            content: Text('An error occurred. Please try again later.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   // This widget is the root of your application.
@@ -177,16 +248,7 @@ class _RegisterState extends State<Register> {
               floor: _floorController.text,
               houseno: int.parse(_housenumberController.text));
 
-          signUp();
-
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(
-                      ResidentController.saveResidentToFirestore(residentObj)),
-                );
-              });
+          signUp(residentObj);
 
           // Clear the form fields after registration
           _nameController.clear();

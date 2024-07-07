@@ -13,9 +13,10 @@ final qrImageKey = GlobalKey();
 class QrImagePage extends StatelessWidget {
 
   final String data;
+  final String visitorId;
   final double? size;
 
-  const QrImagePage(this.data, this.size, {Key? key}) : super(key: key);
+  const QrImagePage(this.data, this.visitorId, this.size, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +44,11 @@ class QrImagePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async{
 
-                //capture the QR code image
+                //capture the QR code image and upload to Firebase Storage
                 RenderRepaintBoundary boundary = qrImageKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-                ui.Image image = await boundary.toImage();
-                ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-                Uint8List pngBytes = byteData!.buffer.asUint8List();
+                ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+                ByteData byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
+                Uint8List pngBytes = byteData.buffer.asUint8List();
 
                 //save QR code image to a temporary file
                 final tempDir = await getTemporaryDirectory();
@@ -55,6 +56,8 @@ class QrImagePage extends StatelessWidget {
                 file.writeAsBytesSync(pngBytes);
 
                 //upload QR code image to firebase storage
+                final storageRef = FirebaseStorage.instance.ref().child('qr_codes/$visitorId.png');
+                await storageRef.putFile(file);
                 /*final storageRef = FirebaseStorage.instance
                       .ref()
                       .child('qrcodes/${DateTime.now().microsecondsSinceEpoch}.png');

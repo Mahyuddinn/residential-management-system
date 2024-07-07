@@ -45,7 +45,7 @@ class _CheckFacilityState extends State<CheckFacility> {
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                        'Facility: ${document['facilityName']}\nTimeslot: ${document['timeSlot']}',
+                        'Facility: ${document['facilityName']}\nTimeslot: ${document['timeSlot']}\nStatus: ${document['status']}',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -110,6 +110,8 @@ class FacilityDetailDialog extends StatelessWidget{
           SizedBox(height: 8.0),
           Text('Phone Number: ${document['residentPhoneNumber']}'),
           SizedBox(height: 8.0),
+          Text('Date: ${document['date']}'),
+          SizedBox(height: 8.0),
           Text('Timeslot: ${document['timeSlot']}'),
           SizedBox(height: 8.0),
           Text('Time booked: $formattedTime'),
@@ -126,6 +128,17 @@ class FacilityDetailDialog extends StatelessWidget{
               Navigator.of(context).pop();
             },
             child: Text('Approve'),
+          ),
+        if (document['status'] == 'pending')
+          TextButton(
+            onPressed: () async {
+              await FirebaseFirestore.instance
+                  .collection('Bookings')
+                  .doc(document.id)
+                  .update({'status': 'Rejected'});
+              Navigator.of(context).pop();
+            },
+            child: Text('Rejected'),
           ),
         TextButton(
           onPressed: () {
