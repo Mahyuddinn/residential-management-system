@@ -11,15 +11,18 @@ import 'package:share_plus/share_plus.dart';
 final qrImageKey = GlobalKey();
 
 class QrImagePage extends StatelessWidget {
-
   final String data;
   final String visitorId;
   final double? size;
 
-  const QrImagePage(this.data, this.visitorId, this.size, {Key? key}) : super(key: key);
+  const QrImagePage(this.data, this.visitorId, this.size, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Log the data being used to generate the QR code
+    print('Generating QR Code with Data: $data');
+
     return Scaffold(
       appBar: _buildAppBar(context),
       body: Center(
@@ -40,14 +43,17 @@ class QrImagePage extends StatelessWidget {
               data: data,
               size: size,
             ),*/
-            SizedBox(height: 40,),
+            SizedBox(
+              height: 40,
+            ),
             ElevatedButton(
-              onPressed: () async{
-
+              onPressed: () async {
                 //capture the QR code image and upload to Firebase Storage
-                RenderRepaintBoundary boundary = qrImageKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                RenderRepaintBoundary boundary = qrImageKey.currentContext!
+                    .findRenderObject() as RenderRepaintBoundary;
                 ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-                ByteData byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
+                ByteData byteData =
+                    (await image.toByteData(format: ui.ImageByteFormat.png))!;
                 Uint8List pngBytes = byteData.buffer.asUint8List();
 
                 //save QR code image to a temporary file
@@ -56,7 +62,9 @@ class QrImagePage extends StatelessWidget {
                 file.writeAsBytesSync(pngBytes);
 
                 //upload QR code image to firebase storage
-                final storageRef = FirebaseStorage.instance.ref().child('qr_codes/$visitorId.png');
+                final storageRef = FirebaseStorage.instance
+                    .ref()
+                    .child('qr_codes/$visitorId.png');
                 await storageRef.putFile(file);
                 /*final storageRef = FirebaseStorage.instance
                       .ref()
@@ -69,15 +77,19 @@ class QrImagePage extends StatelessWidget {
 
                 //Share the QR code image
                 final xFile = XFile.fromData(pngBytes, mimeType: 'image/png');
-                await Share.shareXFiles([xFile], subject: 'QR Code Image', text: 'QR Code Image');
-              }, 
-              child: Text('Share',
+                await Share.shareXFiles([xFile],
+                    subject: 'QR Code Image', text: 'QR Code Image');
+              },
+              child: Text(
+                'Share',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.lightGreenAccent[700])),
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Colors.lightGreenAccent[700])),
             ),
           ],
         ),

@@ -81,10 +81,13 @@ class _SecurityScanQrState extends State<SecurityScanQr> {
         qrCodeResult = scanData.code;
       });
 
+      // Add this print statement to check the scanned data
+      print('Scanned QR Code Data: $qrCodeResult');
+
       if (qrCodeResult != null) {
         controller.pauseCamera();
         Navigator.push(
-          context, 
+          context,
           MaterialPageRoute(
             builder: (context) => QRResultPage(data: qrCodeResult!),
           ),

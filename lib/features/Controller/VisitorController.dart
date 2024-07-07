@@ -14,4 +14,8 @@ class VisitorController {
       return '';
     }
   }
+
+  static String generateQrString(Visitor visitor) {
+    return '${visitor.name},${visitor.phoneNumber},${visitor.plate},${visitor.checkInDate},${visitor.checkOutDate},${visitor.Status},${visitor.applicantName}';
+  }
 }

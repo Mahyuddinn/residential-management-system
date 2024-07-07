@@ -81,7 +81,7 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
         SnackBar(content: Text('Visitor has successfully registered')),
       );
 
-      generateQrCode(visitorId);
+      generateQrCode(visitor, visitorId);
     } else {
       // Handle the error appropriately
       ScaffoldMessenger.of(context).showSnackBar(
@@ -102,17 +102,11 @@ class _NormalVisitorFormState extends State<NormalVisitorForm> {
     );
   }
 
-  void generateQrCode(String visitorId) {
+  void generateQrCode(Visitor visitor, String visitorId) {
     // Construct the QR code data
-    String qrCodeData = _nameController.text +
-        ',' +
-        _phoneNumberController.text +
-        ',' +
-        _plateController.text +
-        ',' +
-        _checkInDateController.text +
-        ',' +
-        _checkOutDateController.text;
+    String qrCodeData = VisitorController.generateQrString(visitor);
+
+    print('QR CODE DATA: $qrCodeData AND $visitorId');
 
     Navigator.push(
       context,
