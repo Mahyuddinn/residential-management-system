@@ -175,25 +175,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 8.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.question_answer,
-                  color: Colors.black87,
-                  size: 35.0,
-                ),
-                Text(
-                  'FAQ & Tutorial',
-                  style: TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
